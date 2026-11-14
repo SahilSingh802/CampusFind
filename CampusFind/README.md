@@ -48,6 +48,20 @@ Open http://127.0.0.1:8000/ (admin: http://127.0.0.1:8000/admin/).
 Bootstrap, icons and the Manrope font load from CDNs, so an internet connection is needed for the full look.
 Run the app tests with `python manage.py test items`.
 
+## Demo walkthrough
+1. Register two accounts, or create demo accounts and sample reports with `python manage.py seed_demo --password "ChooseADemoPassword#1"`.
+2. Log in as `demo_asha` or `demo_ravi` using the password passed to the seed command.
+3. Open a lost or found report. Its detail page suggests up to three active reports of the opposite type in the same category.
+4. On any report detail page, select **Save for later**. Open the dashboard to see the saved report; use the bookmark button to remove it.
+5. To demonstrate claiming, log in with the other demo account, open an active found report, and submit an ownership claim. The account that reported it can review the claim on the report detail page or dashboard.
+
+The seed command adds a lost backpack and an active found backpack in the same category to demonstrate possible matches. It does not reset or delete existing data.
+
+## Recent feature details
+- **Possible matches** use the existing category and item type: only active reports of the opposite type in the same category are suggested, with a maximum of three results. This is a helpful lead, not an automatic ownership decision.
+- **Saved items** are private to the signed-in user and shown on that user's dashboard. Saving and removing requires a POST request and a CSRF token; a database constraint prevents duplicate saves.
+- Apply schema changes before using the features with `python manage.py migrate`. The saved-items table is created by `items/migrations/0003_saveditem.py`.
+
 ## Project structure
 ```
 CampusFind/
