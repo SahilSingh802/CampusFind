@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Lost items{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div><h1 class="h2 mb-1">Lost items</h1>
+      <p class="text-muted-ink mb-0">{{ count }} report{{ count|pluralize }} from students and staff. Spotted something that is yours or someone else's? Open it for details.</p></div>
+    <a href="{% url 'report_item' 'lost' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Report lost item</a>
+  </div>
+  {% include '_filters.html' %}
+  {% include '_results.html' %}
+</div>
+{% endblock %}

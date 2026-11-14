@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div><h1 class="h2 mb-1">Hello, {{ user.first_name|default:user.username }}</h1>
+      <p class="text-muted-ink mb-0">Here's everything you've reported and claimed. Visits this session: {{ visit_count }}.</p></div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'report_item' 'lost' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Lost item</a>
+      <a href="{% url 'report_item' 'found' %}" class="btn btn-outline-primary bg-white"><i class="bi bi-plus-lg"></i> Found item</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="cf-card dash-stat"><div class="meta"><i class="bi bi-collection"></i> Total reported</div><div class="stat-number mt-1">{{ total_reported }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="cf-card dash-stat"><div class="meta"><i class="bi bi-exclamation-circle"></i> Lost items</div><div class="stat-number mt-1">{{ lost_count }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="cf-card dash-stat"><div class="meta"><i class="bi bi-check2-circle"></i> Found items</div><div class="stat-number mt-1">{{ found_count }}</div></div></div>
+    <div class="col-6 col-lg-3"><div class="cf-card dash-stat"><div class="meta"><i class="bi bi-hourglass-split"></i> Pending claims on my items</div><div class="stat-number mt-1">{{ pending_claims }}</div></div></div>
+  </div>
+
+  {% if incoming_claims %}
+  <div class="cf-card p-4 mb-4 border-primary">
+    <h2 class="h5 mb-3"><i class="bi bi-bell text-primary"></i> Claims waiting for your review</h2>
+    {% for claim in incoming_claims %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center border-top py-2">
+      <span><strong>{{ claim.claimant.get_full_name|default:claim.claimant.username }}</strong> claimed <em>{{ claim.item.title }}</em> <span class="meta">{{ claim.created_at|timesince }} ago</span></span>
+      <a class="btn btn-soft btn-sm" href="{{ claim.item.get_absolute_url }}">Review</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="cf-card p-4 mb-4">
+    <h2 class="h5 mb-3">My reports</h2>
+    {% if my_items %}
+    <div class="table-responsive"><table class="table align-middle mb-0">
+      <thead><tr class="meta"><th>Item</th><th>Type</th><th>Status</th><th>Date</th><th class="text-end">Actions</th></tr></thead>
+      <tbody>
+      {% for item in my_items %}
+        <tr>
+          <td><a href="{{ item.get_absolute_url }}" class="fw-bold">{{ item.title }}</a><div class="meta">{{ item.category.name }} &middot; {{ item.location }}</div></td>
+          <td><span class="badge-soft {% if item.is_lost %}badge-lost{% else %}badge-found{% endif %}">{{ item.get_item_type_display }}</span></td>
+          <td><span class="badge-soft badge-{{ item.status }}">{{ item.get_status_display }}</span></td>
+          <td class="meta">{{ item.date_reported|date:"d M Y" }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-soft btn-sm" href="{% url 'edit_item' item.pk %}"><i class="bi bi-pencil"></i> Edit</a>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_item' item.pk %}"><i class="bi bi-trash3"></i> Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody></table></div>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-journal-plus"></i><h5 class="mt-3">You haven't reported anything yet</h5>
+      <p class="text-muted-ink">Lost a belonging or found someone else's? Add a report in under a minute.</p>
+      <a href="{% url 'report_item' 'lost' %}" class="btn btn-primary">Report an item</a></div>
+    {% endif %}
+  </div>
+
+  <div class="cf-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+      <h2 class="h5 mb-0"><i class="bi bi-bookmark-heart text-primary me-1"></i> Saved items</h2>
+      <span class="badge rounded-pill text-bg-light">{{ saved_items|length }}</span>
+    </div>
+    {% if saved_items %}
+    <div class="row g-3">
+      {% for saved in saved_items %}
+      <div class="col-md-6">
+        <div class="saved-item-row">
+          <div class="saved-item-icon"><i class="bi {{ saved.item.category.icon }}"></i></div>
+          <div class="flex-grow-1 min-w-0">
+            <a href="{{ saved.item.get_absolute_url }}" class="fw-bold">{{ saved.item.title }}</a>
+            <div class="meta">{{ saved.item.get_item_type_display }} &middot; {{ saved.item.category.name }} &middot; {{ saved.item.location }}</div>
+          </div>
+          <form method="post" action="{% url 'toggle_saved_item' saved.item.pk %}">{% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'dashboard' %}">
+            <button type="submit" class="btn btn-soft btn-sm" aria-label="Remove {{ saved.item.title }} from saved items">
+              <i class="bi bi-bookmark-dash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted-ink mb-0">Save useful reports from an item’s details page and they’ll be waiting here.</p>
+    {% endif %}
+  </div>
+
+  <div class="cf-card p-4">
+    <h2 class="h5 mb-3">My claims</h2>
+    {% if my_claims %}
+    <div class="table-responsive"><table class="table align-middle mb-0">
+      <thead><tr class="meta"><th>Item</th><th>Submitted</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for claim in my_claims %}
+        <tr><td><a href="{{ claim.item.get_absolute_url }}" class="fw-bold">{{ claim.item.title }}</a></td>
+            <td class="meta">{{ claim.created_at|date:"d M Y, H:i" }}</td>
+            <td><span class="badge-soft badge-{{ claim.status }}">{{ claim.get_status_display }}</span></td></tr>
+      {% endfor %}
+      </tbody></table></div>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-hand-index"></i><h5 class="mt-3">No claims submitted</h5>
+      <p class="text-muted-ink">If you spot your belonging in the found list, open it and submit a claim.</p>
+      <a href="{% url 'found_items' %}" class="btn btn-soft">Browse found items</a></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

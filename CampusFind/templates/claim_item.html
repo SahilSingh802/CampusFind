@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Claim item{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:760px">
+  <a href="{{ item.get_absolute_url }}" class="meta"><i class="bi bi-arrow-left"></i> Back to item</a>
+  <h1 class="h2 mt-2 mb-1">Claim “{{ item.title }}”</h1>
+  <p class="text-muted-ink mb-4">Prove the item is yours. The finder compares your answer with private details only they can see.</p>
+  <form method="post" class="cf-card p-4" data-once novalidate>{% csrf_token %}
+    <div class="mb-3"><label class="form-label">Claimant name</label>
+      <input class="form-control" value="{{ user.get_full_name|default:user.username }}" disabled></div>
+    {% include '_field.html' with field=form.contact %}
+    {% include '_field.html' with field=form.verification_answer %}
+    {% include '_field.html' with field=form.explanation %}
+    <button class="btn btn-primary" type="submit">Submit claim</button>
+    <a class="btn btn-soft" href="{{ item.get_absolute_url }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

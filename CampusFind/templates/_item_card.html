@@ -1,0 +1,30 @@
+{% load static %}
+<div class="cf-card item-card">
+  <div class="item-thumb">
+    {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.title }}" loading="lazy">
+    {% elif item.category.name == 'Bag' %}<img src="{% static 'images/found-backpack.jpg' %}" alt="Backpack example" loading="lazy">
+    {% elif item.category.name == 'Books & Notebooks' %}<img src="{% static 'images/notebooks.jpg' %}" alt="Books and notebooks example" loading="lazy">
+    {% elif item.category.name == 'Wallet' %}<img src="{% static 'images/wallet.jpg' %}" alt="Wallet example" loading="lazy">
+    {% elif item.category.name == 'ID Card' %}<img src="{% static 'images/student-id.jpg' %}" alt="Study desk example" loading="lazy">
+    {% elif item.category.name == 'Mobile Phone' %}<img src="{% static 'images/phone.jpg' %}" alt="Mobile phone example" loading="lazy">
+    {% elif item.category.name == 'Earphones' %}<img src="{% static 'images/earphones.jpg' %}" alt="Headphones example" loading="lazy">
+    {% else %}<i class="bi {{ item.category.icon }}"></i>{% endif %}
+    {% if not item.image and item.category.name in "Bag,Books & Notebooks,Wallet,ID Card,Mobile Phone,Earphones" %}
+    <span class="item-thumb-label">Reference photo</span>
+    {% endif %}
+  </div>
+  <div class="p-3 d-flex flex-column flex-grow-1">
+    <div class="d-flex gap-2 mb-2 flex-wrap">
+      <span class="badge-soft {% if item.is_lost %}badge-lost{% else %}badge-found{% endif %}">{{ item.get_item_type_display }}</span>
+      <span class="badge-soft badge-{{ item.status }}">{{ item.get_status_display }}</span>
+    </div>
+    <h5 class="mb-1 fs-6">{{ item.title }}</h5>
+    <div class="meta mb-2"><i class="bi {{ item.category.icon }}"></i> {{ item.category.name }}</div>
+    <p class="meta line-clamp mb-2">{{ item.description|truncatewords:18 }}</p>
+    <div class="meta mt-auto mb-3">
+      <div><i class="bi bi-geo-alt"></i> {{ item.location }}</div>
+      <div><i class="bi bi-calendar3"></i> {{ item.date_reported|date:"d M Y" }}</div>
+    </div>
+    <a href="{% url 'item_detail' item.pk %}" class="btn btn-soft w-100">View details</a>
+  </div>
+</div>

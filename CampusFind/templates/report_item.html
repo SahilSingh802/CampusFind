@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_edit %}Edit report{% elif item_type == 'LOST' %}Report lost item{% else %}Report found item{% endif %}{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:820px">
+  <h1 class="h2 mb-1">{% if is_edit %}Edit your report{% elif item_type == 'LOST' %}Report a lost item{% else %}Report a found item{% endif %}</h1>
+  <p class="text-muted-ink mb-4">
+    {% if item_type == 'LOST' %}The more detail you give, the easier it is for a finder to recognise your item.
+    {% else %}Thanks for helping a fellow student. Private details stay hidden and are used only to verify the owner.{% endif %}
+  </p>
+  <form method="post" enctype="multipart/form-data" class="cf-card p-4" data-once novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="row">
+      <div class="col-md-8">{% include '_field.html' with field=form.title %}</div>
+      <div class="col-md-4">{% include '_field.html' with field=form.category %}</div>
+    </div>
+    {% include '_field.html' with field=form.description %}
+    <div class="row">
+      <div class="col-md-7">{% include '_field.html' with field=form.location %}</div>
+      <div class="col-md-5">{% include '_field.html' with field=form.date_reported %}</div>
+    </div>
+    {% include '_field.html' with field=form.contact %}
+    {% include '_field.html' with field=form.image %}
+    {% if is_edit and item.image %}<p class="meta">Current image: <a href="{{ item.image.url }}" target="_blank">view</a></p>{% endif %}
+    <img id="image-preview" class="d-none mb-3 rounded-3" style="max-height:180px" alt="Selected image preview">
+    {% if form.private_details %}
+    <div class="private-box mb-3">
+      <i class="bi bi-lock-fill"></i> <strong>Hidden from the public</strong>
+      {% include '_field.html' with field=form.private_details %}
+    </div>
+    {% endif %}
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" type="submit">{% if is_edit %}Save changes{% else %}Publish report{% endif %}</button>
+      <a class="btn btn-soft" href="{% if is_edit %}{{ item.get_absolute_url }}{% else %}{% url 'home' %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
