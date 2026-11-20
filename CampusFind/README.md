@@ -48,6 +48,18 @@ Open http://127.0.0.1:8000/ (admin: http://127.0.0.1:8000/admin/).
 Bootstrap, icons and the Manrope font load from CDNs, so an internet connection is needed for the full look.
 Run the app tests with `python manage.py test items`.
 
+## PythonAnywhere: uploaded item photos
+Uploaded photos are stored under `MEDIA_ROOT` (`<project>/media` by default) and are
+not committed to Git. Django serves them automatically only in development. For a
+deployed PythonAnywhere site, open the web app's **Static files** section and add a
+mapping with URL `/media/` and the absolute path to the deployed project's `media`
+directory (the value of `MEDIA_ROOT`). Save the mapping and reload the web app.
+
+If existing photos still return 404, check that each file named by the item's
+`image` field exists under that mapped directory. A database record or a Git
+deployment does not include the uploaded file; if it is missing, upload the photo
+again after configuring the mapping.
+
 ## Demo walkthrough
 1. Register two accounts, or create demo accounts and sample reports with `python manage.py seed_demo --password "ChooseADemoPassword#1"`.
 2. Log in as `demo_asha` or `demo_ravi` using the password passed to the seed command.

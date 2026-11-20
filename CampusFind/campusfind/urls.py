@@ -8,7 +8,7 @@ urlpatterns = [
     path('', include('items.urls')),
 ]
 
-# Serve uploaded images during local development
+# Serve uploads locally; production hosts must map MEDIA_URL to MEDIA_ROOT.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
